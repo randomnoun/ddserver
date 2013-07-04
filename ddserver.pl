@@ -742,7 +742,9 @@ sub getDdserverHtmlTemplate {
   my $htmlUrl = $config{"interfaces"}{"html"};
   my $dyndnsUrl = $config{"interfaces"}{"dyndns"};
   my $zoneeditUrl = $config{"interfaces"}{"zoneedit"};
-  
+  # i have absolutely no idea why I need to reference and then dereference this
+  my $domainsRef = \@{$config{"domains"}};
+  my @domains = @{$domainsRef};
 %>
 <!DOCTYPE html>
 <html>
@@ -781,7 +783,7 @@ sub getDdserverHtmlTemplate {
 <p>
 <form id="updateForm" action="ddserver.pl" method="post" class="form-inline" >
 <input type="hidden" name="action" value="updateForm" />
-<input type="hidden" id="domain" name="domain" value=".randomnoun.com" />
+<input type="hidden" id="domain" name="domain" value=".<%= $domains[0] %>" />
 <div class="input-append">
   <input name="hostname" class="span3" id="appendedDropdownButton" type="text" placeholder="hostname" value="<%= $host %>" style="text-align: right;">
   <div class="btn-group">
@@ -791,9 +793,6 @@ sub getDdserverHtmlTemplate {
     </button>
     <ul class="dropdown-menu">
 <%
-  # i have absolutely no idea why I need to reference and then dereference this
-  $domainsRef = \@{$config{"domains"}};
-  @domains = @{$domainsRef};
   for my $d (@domains) {
 %>    
       <li><a href="#" onclick="setDomain('.<%= $d %>');" >.<%= $d %></a></li>
