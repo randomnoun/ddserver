@@ -29,12 +29,12 @@ This script can be tested from the command-line:
     perl ddserver.pl /update? hostname=movingtarget.example.com myip=1.2.3.4
 
     wget -O- -q --auth-no-challenge --http-user=admin --http-password=admin \
-      'http://localhost/nic/update?hostname=movingtarget.example.com&myip=1.2.3.4'
+      'http://localhost/ddserver/update?hostname=movingtarget.example.com&myip=1.2.3.4'
 
 Static resources:
 
-    perl ddserver.pl /nic.js?
-    perl ddserver.pl /nic.css?
+    perl ddserver.pl /ddserver.js?
+    perl ddserver.pl /ddserver.css?
     perl ddserver.pl /bootstrap.min.js?
     perl ddserver.pl /bootstrap.min.css?
     perl ddserver.pl /image/server.gif?
@@ -84,17 +84,17 @@ This script attempts to stay parameter-compatible with the dyndns service.
 
 Copy it into an executable web directory
 
-Configure nic.json, which I will describe in detail somewhere
+Configure ddserver.json, which I will describe in detail somewhere
 
-If running multiple nameservers, configure nic-hostname.conf, which I will describe in detail somewhere
+If running multiple nameservers, configure ddserver-hostname.conf, which I will describe in detail somewhere
 
 Create the folders and log files used by the script:
 
 	sudo mkdir /etc/bind/dynamic; sudo chown www-data:bind /etc/bind/dynamic
 	sudo mkdir /etc/bind/dynamic.old; sudo chown www-data:bind /etc/bind/dynamic.old
-	sudo touch /var/log/nic.log; sudo chown www-data:www-data /var/log/nic.log
+	sudo touch /var/log/ddserver.log; sudo chown www-data:www-data /var/log/ddserver.log
 
-Create /etc/cron.d/nic:
+Create /etc/cron.d/ddserver:
 
 	*/1 * * * *     root if [ -f /etc/bind/dynamic/.bind_restart ]; then /etc/init.d/bind9 reload >/dev/null; rm -f /etc/bind/dynamic/.bind_restart; fi
 
@@ -160,7 +160,7 @@ my $errorString;
 my $sendErrorsAsJavascript = 0;
 my $sendErrorsAsJSON = 0;
 my $sendErrorsAsInscrutableErrorCode = 0; # as per http://dyn.com/support/developers/api/return-codes/
-my $nicHostname = "";
+my $ddserverHostname = "";
 my %config;
 $procIn = "";
 
@@ -214,17 +214,17 @@ sub untaint {
 }
 
 sub parseConfig {
-    my $nicJsonText, %nicJson;
-    open (INPUT, "nic.json") || die "Could not open nic.json: $!";
-    $nicJsonText = do { local $/; <INPUT> };
+    my $ddserverJsonText, %ddserverJson;
+    open (INPUT, "ddserver.json") || die "Could not open ddserver.json: $!";
+    $ddserverJsonText = do { local $/; <INPUT> };
     close(INPUT);
-    $nicJsonText = minify(input => $nicJsonText);
-    %nicJson = %{decode_json $nicJsonText};
-    %config = %{$nicJson{"config"}};
+    $ddserverJsonText = minify(input => $ddserverJsonText);
+    %ddserverJson = %{decode_json $ddserverJsonText};
+    %config = %{$ddserverJson{"config"}};
 
-	if (-f "nic-hostname.conf") {
-	    open (INPUT, "nic-hostname.conf") || die "Could not open nic-hostname.conf: $!";
-	    $nicHostname = do { local $/; <INPUT> };
+	if (-f "ddserver-hostname.conf") {
+	    open (INPUT, "ddserver-hostname.conf") || die "Could not open ddserver-hostname.conf: $!";
+	    $ddserverHostname = do { local $/; <INPUT> };
 	    close(INPUT);
 	}
    
@@ -323,14 +323,14 @@ eval {
         printBootstrapMinCss();
         exit;
 
-    } elsif ($pathInfo =~ m!nic.css!) {
+    } elsif ($pathInfo =~ m!ddserver.css!) {
         print $q->header( {-type=>"text/css" } );
-        printNicCss();
+        printDdserverCss();
         exit;
 
-    } elsif ($pathInfo =~ m!nic.js!) {
+    } elsif ($pathInfo =~ m!ddserver.js!) {
         print $q->header( {-type=>"text/javascript" } );
-        printNicJs();
+        printDdserverJs();
         exit;
 
     } elsif ($pathInfo =~ m!checkip.html!) {
@@ -614,9 +614,9 @@ eval {
 		# or, alternatively, just fire off a HTTP request and cross your fingers
 		if ( ($myip ne "NOCHG") && (exists $config{"nameservers"}) && (!defined $q->param("xfr")) ) {
 			%nameservers = %{$config{"nameservers"}};
-			for my $nicHost (sort keys %nameservers) {
-				if ($nicHost ne $nicHostname) {
-				    $url = $nameservers{$nicHost};
+			for my $ddserverHost (sort keys %nameservers) {
+				if ($ddserverHost ne $ddserverHostname) {
+				    $url = $nameservers{$ddserverHost};
 				    $url .= "/update?hostname=" . $hostname;
 				    $url .= "&myip=" . $myip;
 				    $url .= "&xfr=Y";
@@ -650,7 +650,7 @@ eval {
     
     $baseurl = $config{"server"};
     print $q->header();
-    $html = getNicHtmlTemplate();
+    $html = getDdserverHtmlTemplate();
     $html = evalTemplate($html); 
     print $html;
 
@@ -680,7 +680,7 @@ if ($@) {
         } elsif (%result) {
 		    $baseurl = $config{"server"};
 		    print $q->header();
-		    $html = getNicHtmlTemplate();
+		    $html = getDdserverHtmlTemplate();
 		    $html = evalTemplate($html); 
 		    print $html;
         
@@ -734,8 +734,8 @@ __EOBINDTEMPLATE
 ########################################################
 # main html
 
-sub getNicHtmlTemplate {
-    return <<'__EONICHTML';
+sub getDdserverHtmlTemplate {
+    return <<'__EODDSERVERHTML';
 <%
   my $i, $domainsRef;
   my @domains;
@@ -746,12 +746,12 @@ sub getNicHtmlTemplate {
 <title>Simple Dynamic DNS server</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="ddserver.pl/bootstrap.min.css" media="screen">
-<link rel="stylesheet" href="ddserver.pl/nic.css" type="text/css" />
+<link rel="stylesheet" href="ddserver.pl/ddserver.css" type="text/css" />
 <link rel="shortcut icon" type="image/png" href="ddserver.pl/image/favicon.png" />
 
 <script src="ddserver.pl/jquery.min.js"></script>
 <script src="ddserver.pl/bootstrap.min.js"></script>
-<script src="ddserver.pl/nic.js"  type="text/javascript"></script>
+<script src="ddserver.pl/ddserver.js"  type="text/javascript"></script>
 </head>
 <body onload="initWindow()">
 
@@ -877,16 +877,16 @@ function initWindow() {
 </script>
 </body>
 </html>
-__EONICHTML
+__EODDSERVERHTML
 }
 
 
 
 ########################################################
-# nic.css
+# ddserver.css
 
-sub printNicCss {
-    print<<'__EONICCSS';
+sub printDdserverCss {
+    print<<'__EODDSERVERCSS';
 /* TODO some media selector to say 'tap' instead of 'click' on mobile devices */
 BODY { font-family: Arial; margin: 8px; }
 .header {
@@ -937,17 +937,16 @@ A:active { text-decoration: none; }
 .status.previous .statusHeader { color: white; background-color: #686868; font-weight: bold; }
 .status.current .statusHeader { color: white; background-color: #686868; font-weight: bold; }
 
-__EONICCSS
+__EODDSERVERCSS
 }
 
 
 
 ########################################################
-# nic.js
+# ddserver.js
 
-sub printNicJs {
-    print<<'__EONICJS';
-function fmt2(n) { return (n>=10) ? n : '0' + n; }
+sub printDdserverJs {
+    print<<'__EODDSERVERJS';
 
 function escapeHtml(text) {
   text=text.replace(/&/g, "&amp;");
@@ -961,7 +960,7 @@ function setDomain(domain) {
   $("#domainText").html(domain); 
 }
 
-__EONICJS
+__EODDSERVERJS
 }
 
 ########################################################
