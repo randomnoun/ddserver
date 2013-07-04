@@ -739,25 +739,29 @@ sub getDdserverHtmlTemplate {
 <%
   my $i, $domainsRef;
   my @domains;
+  my $htmlUrl = $config{"interfaces"}{"html"};
+  my $dyndnsUrl = $config{"interfaces"}{"dyndns"};
+  my $zoneeditUrl = $config{"interfaces"}{"zoneedit"};
+  
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <title>Simple Dynamic DNS server</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="ddserver.pl/bootstrap.min.css" media="screen">
-<link rel="stylesheet" href="ddserver.pl/ddserver.css" type="text/css" />
-<link rel="shortcut icon" type="image/png" href="ddserver.pl/image/favicon.png" />
+<link rel="stylesheet" href="<%= $htmlUrl %>/bootstrap.min.css" media="screen">
+<link rel="stylesheet" href="<%= $htmlUrl %>/ddserver.css" type="text/css" />
+<link rel="shortcut icon" type="image/png" href="<%= $htmlUrl %>/image/favicon.png" />
 
-<script src="ddserver.pl/jquery.min.js"></script>
-<script src="ddserver.pl/bootstrap.min.js"></script>
-<script src="ddserver.pl/ddserver.js"  type="text/javascript"></script>
+<script src="<%= $htmlUrl %>/jquery.min.js"></script>
+<script src="<%= $htmlUrl %>/bootstrap.min.js"></script>
+<script src="<%= $htmlUrl %>/ddserver.js"  type="text/javascript"></script>
 </head>
 <body onload="initWindow()">
 
 <div class="header">
-<a href="ddserver.pl"><img src="ddserver.pl/image/dns48.png" style="border:none; float:left; margin: 10px;"></a> 
-<a href="ddserver.pl"><div class="large">Simple Dynamic DNS Server</div></a>
+<a href="<%= $htmlUrl %>"><img src="<%= $htmlUrl %>/image/dns48.png" style="border:none; float:left; margin: 10px;"></a> 
+<a href="<%= $htmlUrl %>"><div class="large">Simple Dynamic DNS Server</div></a>
 <div class="small">Converting words into numbers <a href="http://www.ietf.org/rfc/rfc1034.txt" style="color:white;border-bottom:dotted 1px white;">since 1987&trade;</a>.</div>
 </div>
 
@@ -800,9 +804,9 @@ sub getDdserverHtmlTemplate {
   </div>
 </div>
 <!-- <i class="icon-arrow-right"></i> --> 
-<img src="ddserver.pl/image/icon-arrow-right.png" width="16" height="16" style="">
+<img src="<%= $htmlUrl %>/image/icon-arrow-right.png" width="16" height="16" style="">
 <input class="span2" type="text" name="myip" value="<%= $myip %>" />
-<button class="btn btn-primary btn-success" type="button" onclick="$('#updateForm').submit();" ><img src="ddserver.pl/image/icon-ok.png" width="16" height="16" style=""> OK</button>
+<button class="btn btn-primary btn-success" type="button" onclick="$('#updateForm').submit();" ><img src="<%= $htmlUrl %>/image/icon-ok.png" width="16" height="16" style=""> OK</button>
 </form>
 </p>
 Your current IP address is <b><%= $requestip %></b>.
@@ -834,8 +838,8 @@ to update your IP automatically, using a configuration similar to the following:
 #
 daemon=5m                   
 use=web
-web=<%= $config{"interfaces"}{"dyndns"} %>/checkip.html  <!-- prefixString 'Current IP Address:' -->
-server=<%= $config{"interfaces"}{"dyndns"} %>
+web=<%= $dyndnsUrl %>/checkip.html  <!-- prefixString 'Current IP Address:' -->
+server=<%= $dyndnsUrl %>
 protocol=dyndns2 login=<i>secretlogin</i>, password=<i>secretpassword</i> <i>host.example.com</i>
 </pre>
 
@@ -849,15 +853,15 @@ protocol=dyndns2 login=<i>secretlogin</i>, password=<i>secretpassword</i> <i>hos
 <h3>DynDNS</h3>
 <p>Alternately, you may wish to use the <a href="http://www.dyndns.org">dyndns</a>-compatible 
 <a href="http://dyn.com/support/developers/api/perform-update/">interface</a>:
-<br/><code><%= $config{"interfaces"}{"dyndns"} %>/checkip.html</code>
-<br/><code><%= $config{"interfaces"}{"dyndns"} %>/update?system=dyndns&hostname=<i>host.example.com</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
-<br/><code><%= $config{"interfaces"}{"dyndns"} %>/update?system=dyndns&hostname=<i>host.example.com</i>&myip=<i>x.x.x.x</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
+<br/><code><%= $dyndnsUrl %>/checkip.html</code>
+<br/><code><%= $dyndnsUrl %>/update?system=dyndns&hostname=<i>host.example.com</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
+<br/><code><%= $dyndnsUrl %>/update?system=dyndns&hostname=<i>host.example.com</i>&myip=<i>x.x.x.x</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
 
 <h3>ZoneEdit</h3>
 <p>Or even the <a href="http://www.zoneedit.com/">zoneedit</a>-compatible 
 <a href="http://www.zoneedit.com/doc/dynamic.html">interface</a>:
-<br/><code><%= $config{"interfaces"}{"zoneedit"} %>/checkip.html</code> <!-- prefixString 'IP Address:' -->
-<br/><code><%= $config{"interfaces"}{"zoneedit"} %>/auth/dynamic.html?dnsto=<i>x.x.x.x</i>&host=<i>host.example.com</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
+<br/><code><%= $zoneeditUrl %>/checkip.html</code> <!-- prefixString 'IP Address:' -->
+<br/><code><%= $zoneeditUrl %>/auth/dynamic.html?dnsto=<i>x.x.x.x</i>&host=<i>host.example.com</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
 
 <h3>*cough* route53 *cough*</h3>
 <p>Or some new exciting thing I've just thought of that uses XML or JSON, and uses the word
