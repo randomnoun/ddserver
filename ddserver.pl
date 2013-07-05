@@ -131,6 +131,15 @@ $Id$
 
 Greg Knox <knoxg@randomnoun.com>
 
+http://www.randomnoun.com/wp/2013/02/25/firewalling-your-smtp-traffic/
+
+=head1 LICENSE
+
+(c) 2013 randomnoun. All Rights Reserved. 
+
+This work is licensed under a Creative Commons Attribution 3.0 Unported License. 
+(http://creativecommons.org/licenses/by/3.0/)
+
 =cut
 
 
@@ -867,10 +876,13 @@ protocol=dyndns2 login=<i>secretlogin</i>, password=<i>secretpassword</i> <i>hos
 'cloud' repeatedly in the description. 
 
 <hr/>
-&copy; 2013 some licence <a href="www.randomnoun.com">randomnoun</a>. 
+<p>&copy; 2013 <a href="http://www.randomnoun.com">randomnoun</a>. All Rights Reserved.</p>
 
-For more information, please contact the server administrator at 
-<a href="mailto:<%= $config{"serverAdmin"} %>"><%= $config{"serverAdmin"} %></a> 
+<p>This work is licensed under a Creative Commons Attribution 3.0 Unported License. 
+<br/>(<a href="http://creativecommons.org/licenses/by/3.0/">http://creativecommons.org/licenses/by/3.0/</a>)</p>
+
+<p>For more information, please contact the server administrator at 
+<a href="mailto:<%= $config{"serverAdmin"} %>"><%= $config{"serverAdmin"} %></a></p> 
 
 <script>
 function initWindow() {
