@@ -271,6 +271,7 @@ sub evalTemplate {
     #$eval =~ s/\$out .= '';\n//g;
     
     eval $eval;
+    if ($@) { die "Error in template: " . $@ };
     return $out;
 }
 
@@ -621,11 +622,13 @@ eval {
 
 		# TODO: if we've got >1 name server, then tell the others, using a transactional pub/sub messaging system.
 		# or, alternatively, just fire off a HTTP request and cross your fingers
-		if ( ($myip ne "NOCHG") && (exists $config{"nameservers"}) && (!defined $q->param("xfr")) ) {
+		if ( ($myip ne "NOCHG") && 
+		     (ref($config{"nameservers"}) eq "HASH") && 
+		     (!defined $q->param("xfr")) ) {
 			%nameservers = %{$config{"nameservers"}};
 			for my $ddserverHost (sort keys %nameservers) {
 				if ($ddserverHost ne $ddserverHostname) {
-				    $url = $nameservers{$ddserverHost};
+				    $url = $nameservers{$ddserverHost}{"dyndns"};
 				    $url .= "/update?hostname=" . $hostname;
 				    $url .= "&myip=" . $myip;
 				    $url .= "&xfr=Y";
@@ -718,8 +721,13 @@ sub getBindTemplate {
   my $soaContact = $config{"defaultSOA"}{"soaContact"}; $soaContact=~s/\@/./;
   my $authoritativeNameserver = $config{"defaultSOA"}{"authoritativeNameserver"};
   # i have absolutely no idea why I need to reference and then dereference this
-  my $nameserversRef = \@{$config{"defaultSOA"}{"nameservers"}};
-  my @nameservers = @{$nameserversRef};
+  if (ref($config{"nameservers"}) eq "ARRAY") {
+    $nameserversRef = \@{$config{"nameservers"}};
+    @nameservers = @{$nameserversRef};
+  } else {
+    $nameserversRef = \%{$config{"nameservers"}};
+    @nameservers = sort keys %{$nameserversRef};
+  }   
 %>  
 ;
 ; BIND data file for <%= $zone %> zone
@@ -737,8 +745,7 @@ $TTL	604800
 <%
   for my $n (@nameservers) {
 %>    
-<%= $zone %>.         7200    IN      NS      <%= $n %>.
-<%
+<%= $zone %>.         7200    IN      NS      <%= $n %>.<%
   }
 %>      
 ;
