@@ -18,16 +18,23 @@ Access this script via a web browser or command-line HTTP user agent:
 This script can be tested from the command-line: 
 
     perl ddserver.pl
-    
+
+    # get Basic encoding of credentials
     perl -e 'use MIME::Base64; print MIME::Base64::encode("admin:admin");'
     
+    # simulate Basic authorization headers (no web server required)
     HTTP_AUTHORIZATION="Basic YWRtaW46YWRtaW4=" \
     REMOTE_ADDR=127.0.0.1 \
     perl ddserver.pl /update? hostname=movingtarget.example.com
-    
+
+    # simple parameter authorization    
     HTTP_AUTHORIZATION="Basic YWRtaW46YWRtaW4=" \
     perl ddserver.pl /update? hostname=movingtarget.example.com myip=1.2.3.4
 
+    # plaintext authorization
+    perl ddserver.pl /update? hostname=movingtarget.example.com myip=1.2.3.4 username=admin password=admin
+
+    # test via web server
     wget -O- -q --auth-no-challenge --http-user=admin --http-password=admin \
       'http://localhost/ddserver/update?hostname=movingtarget.example.com&myip=1.2.3.4'
 
