@@ -27,11 +27,11 @@ This script can be tested from the command-line:
     REMOTE_ADDR=127.0.0.1 \
     perl ddserver.pl /update? hostname=movingtarget.example.com
 
-    # simple parameter authorization    
+    # override myip value
     HTTP_AUTHORIZATION="Basic YWRtaW46YWRtaW4=" \
     perl ddserver.pl /update? hostname=movingtarget.example.com myip=1.2.3.4
 
-    # plaintext authorization
+    # plaintext authorisation
     perl ddserver.pl /update? hostname=movingtarget.example.com myip=1.2.3.4 username=admin password=admin
 
     # test via web server
