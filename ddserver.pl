@@ -779,6 +779,10 @@ sub getDdserverHtmlTemplate {
   my $htmlUrl = $config{"interfaces"}{"html"};
   my $dyndnsUrl = $config{"interfaces"}{"dyndns"};
   my $zoneeditUrl = $config{"interfaces"}{"zoneedit"};
+  
+  my $dyndnsBaseUrl = $dyndnsUrl;
+  $dyndnsBaseUrl =~ s!^http://(.*)/nic!$1!; # ddclient config doesn't include http:// or trailing '/nic' 
+  
   # i have absolutely no idea why I need to reference and then dereference this
   my $domainsRef = \@{$config{"domains"}};
   my @domains = @{$domainsRef};
@@ -874,8 +878,8 @@ to update your IP automatically, using a configuration similar to the following:
 #
 daemon=5m                   
 use=web
-web=<%= $dyndnsUrl %>/checkip.html  <!-- prefixString 'Current IP Address:' -->
-server=<%= $dyndnsUrl %>
+web=<%= $dyndnsBaseUrl %>/nic/checkip.html  <!-- prefixString 'Current IP Address:' -->
+server=<%= $dyndnsBaseUrl %>
 protocol=dyndns2 login=<i>secretlogin</i>, password=<i>secretpassword</i> <i>host.example.com</i>
 </pre>
 
