@@ -1,9 +1,3 @@
-This README was created from the perlpod documentation in ddserver.pl
-
-To recreate, run 
-
-	perl -MPod::Markdown -e "Pod::Markdown->new->filter(@ARGV)" ddserver.pl > ddserver.md
-
 # NAME
 
 ddserver.pl - A script that replicates the functionality of dyndns.org, back before they
@@ -146,3 +140,12 @@ http://www.randomnoun.com/wp/2013/02/25/firewalling-your-smtp-traffic/
 
 This work is licensed under a Creative Commons Attribution 3.0 Unported License. 
 (http://creativecommons.org/licenses/by/3.0/)
+
+
+---
+
+This README was created from the perlpod documentation in ddserver.pl
+
+To recreate, run 
+
+	perl -MPod::Markdown -e "Pod::Markdown->new->filter(@ARGV)" ddserver.pl > ddserver.md
