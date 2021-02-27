@@ -1,3 +1,7 @@
+# ddserver.pl
+
+There's a nice long blog post about this over at http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/
+
 # NAME
 
 ddserver.pl - A script that replicates the functionality of dyndns.org, back before they
