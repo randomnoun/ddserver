@@ -1,6 +1,6 @@
 # ddserver.pl
 
-There's a nice long blog post about this over at http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/
+There's a nice long blog post about this over at [http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/](http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/)
 
 # NAME
 
@@ -132,11 +132,17 @@ Doesn't handle multiple host updates per request
 
 $Id$
 
+# DOCUMENTATION
+
+To recreate this documentation, run
+
+    perl -MPod::Markdown -e "Pod::Markdown->new->filter(@ARGV)" ddserver.pl > README.md
+
 # AUTHOR
 
 Greg Knox <knoxg@randomnoun.com>
 
-http://www.randomnoun.com/wp/2013/02/25/firewalling-your-smtp-traffic/
+[http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/](http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/)
 
 # LICENSE
 
@@ -144,12 +150,3 @@ http://www.randomnoun.com/wp/2013/02/25/firewalling-your-smtp-traffic/
 
 This work is licensed under a Creative Commons Attribution 3.0 Unported License. 
 (http://creativecommons.org/licenses/by/3.0/)
-
-
----
-
-This README was created from the perlpod documentation in ddserver.pl
-
-To recreate, run 
-
-	perl -MPod::Markdown -e "Pod::Markdown->new->filter(@ARGV)" ddserver.pl > ddserver.md

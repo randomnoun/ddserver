@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 
+=head1 ddserver.pl
+
+There's a nice long blog post about this over at L<http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/>
+
 =head1 NAME
 
 ddserver.pl - A script that replicates the functionality of dyndns.org, back before they
@@ -109,18 +113,34 @@ Update your domain's name server records to point to the bind server(s) configur
 
 =head1 TODO
 
-- write the thing
-- allow loc, txt records to be updated for a domain
-- support AAAA records for ipv6
-- some form of locking around updates
-- add 'hosts' system parameter value to update /etc/hosts files rather than bind config
-- an admin console that allows current values and history of updates to be viewed
-- implement those other dyndns parameters that don't appear to actually do anything (mx, backmx etc)
-- rewrite it all in a language that has heard of type safety
-- write the html interface in spanish. and then french. and then the other one.  
-- buy an iphone
-- write an iphone client
-- profit
+
+=over
+
+=item * write the thing
+
+=item * allow loc, txt records to be updated for a domain
+
+=item * support AAAA records for ipv6
+
+=item * some form of locking around updates
+
+=item * add 'hosts' system parameter value to update /etc/hosts files rather than bind config
+
+=item * an admin console that allows current values and history of updates to be viewed
+
+=item * implement those other dyndns parameters that don't appear to actually do anything (mx, backmx etc)
+
+=item * rewrite it all in a language that has heard of type safety
+
+=item * write the html interface in spanish. and then french. and then the other one.  
+
+=item * buy an iphone
+
+=item * write an iphone client
+
+=item * profit
+
+=back
 
 =head1 LIMITATIONS
 
@@ -134,11 +154,17 @@ Doesn't handle multiple host updates per request
 
 $Id$
 
+=head1 DOCUMENTATION
+
+To recreate this documentation, run
+
+    perl -MPod::Markdown -e "Pod::Markdown->new->filter(@ARGV)" ddserver.pl > README.md
+
 =head1 AUTHOR
 
 Greg Knox <knoxg@randomnoun.com>
 
-http://www.randomnoun.com/wp/2013/02/25/firewalling-your-smtp-traffic/
+L<http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/>
 
 =head1 LICENSE
 
