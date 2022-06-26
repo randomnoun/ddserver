@@ -152,7 +152,7 @@ Doesn't handle multiple host updates per request
 
 =head1 VERSION
 
-$Id$
+0.1
 
 =head1 DOCUMENTATION
 
@@ -206,10 +206,8 @@ my $ddserverHostname = "";
 my %config;
 $procIn = "";
 
-# use $cvsVersion in the User-Agent header of generated HTTP responses
-# using character classes here to prevent CVS expansion
-my $cvsVersion = '$Id$';
-$cvsVersion =~ s!^[\$][I][d][:] .*?,v (\S*) .*\$$!$1!; 
+# not using CVS any more, so use a fixed version number
+my $cvsVersion = '0.1'; 
 
 if ($^O ne "MSWin32") {
   $ENV{"PATH"}="/usr/bin:/bin";
