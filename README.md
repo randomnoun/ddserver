@@ -116,8 +116,6 @@ Update your domain's name server records to point to the bind server(s) configur
 - implement those other dyndns parameters that don't appear to actually do anything (mx, backmx etc)
 - rewrite it all in a language that has heard of type safety
 - write the html interface in spanish. and then french. and then the other one.  
-- buy an iphone
-- write an iphone client
 - profit
 
 # LIMITATIONS

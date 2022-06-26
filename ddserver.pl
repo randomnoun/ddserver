@@ -134,10 +134,6 @@ Update your domain's name server records to point to the bind server(s) configur
 
 =item * write the html interface in spanish. and then french. and then the other one.  
 
-=item * buy an iphone
-
-=item * write an iphone client
-
 =item * profit
 
 =back
