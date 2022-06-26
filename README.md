@@ -130,7 +130,7 @@ Doesn't handle multiple host updates per request
 
 # VERSION
 
-$Id$
+0.1
 
 # DOCUMENTATION
 
