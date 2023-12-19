@@ -1,0 +1,89 @@
+/*
+ 
+  ddserver.json
+ 
+  Configuration file for ddserver.pl
+ 
+  See  http://www.randomnoun.com/wp/2013/07/08/a-dead-simple-dynamic-dns-server/
+  for a brief description of the syntax of this file.
+ 
+*/
+{
+  "syntax" : "ddserver.pl-1.0",
+  "revision" : "$Id$",
+  "config" : {
+ 
+    /* a contact address that the server includes in HTTP requests and the HTML interface */
+    "serverAdmin" : "youremail@example.com",
+ 
+    /* all URLs below must be mapped to the ddserver.pl script. They are functionally equivalent. */
+    "interfaces" : {
+    /*
+      "html"     : "http://www.example.com/cgi-bin/ddserver.pl",
+      "dyndns"   : "http://dyndns.example.com/nic",
+      "zoneedit" : "http://zoneedit.example.com" */
+      
+      "html"     : "http://localhost:1000/ddserver.pl",
+      "dyndns"   : "http://localhost:1000/nic",
+      "zoneedit" : "http://localhost:1000"
+    },
+ 
+    "logfile" : "/var/log/ddserver.log",
+ 
+    /* the restartfile is created if settings have changed. 
+       a cronjob will detect this and cause bind to reload its configuration files.
+     */
+    "restartfile" : "/etc/bind/dynamic/.bind_restart",
+ 
+    /* filesystem location of zonefiles, templates and backups.
+ 
+       "{zone}" here will be replaced with a value from the config.domain() array below.
+       (the zone is the bit of the domain name that you probably paid someone money for. 
+       e.g. if {zone} = ".com" then you probably shouldn't be using this script). 
+ 
+       If a bindZoneTemplate file exists, then that will be used instead of the built in 
+       template for new zones, or when the 'forcetemplate' parameter is supplied.
+     */ 
+    "bindZoneFile" : "/etc/bind/dynamic/db.{zone}",
+    "bindZoneTemplateFile" : "/etc/bind/dynamic/db.{zone}.template",
+    "bindZoneBackupFile" : "/etc/bind/dynamic.old/db.{zone}.{serial}",
+ 
+    /* these things go into the generated DNS records */    
+    "defaultTTL" : "300",
+ 
+    /* these values are used to populate values in the default template SOA record
+       if a zone-specific template doesn't exist.
+     */
+    "defaultSOA" : {
+      "soaContact" : "soacontact@example.com",
+      "authoritativeNameserver" : "ns1.example.com"
+    },
+ 
+    /* the first HTTP header below that exists will be used to override request IP address 
+       the myip parameter overrides both header value and request IP address
+     */  
+    "proxyHeaders" : [ "X-Fowarded-For", "Z-Forwarded-For" ],
+ 
+    /* could have fancier ACLs here, e.g.
+         multiple username, passwords
+         username/password(s) per domain
+         username/password(s) for admin console
+         your choice of user directory, database, grouping mechanism etc
+         your choice of hashing algorithm, certs, securid, dna sequence etc 
+    */
+    "username" : "admin",
+    "password" : "admin",
+    "domains" : [
+      "example.com",
+      "specificgeneralisations.com",
+      "generalspecifics.com",
+      "mycompanyname.com"
+    ],
+ 
+    /* the nameservers for these zones (array) */
+    "nameservers" : [ 
+        "ns1.example.com",
+        "ns2.example.com"
+    ]
+  }
+}
