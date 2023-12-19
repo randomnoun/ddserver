@@ -188,8 +188,7 @@ use LWP::UserAgent;
 # web interfaces
 use constant {
   IFACE_HTML => 0,
-  IFACE_DYNDNS => 1,
-  IFACE_ZONEEDIT => 2,
+  IFACE_DYNDNS => 1
 };
 
 my $q = CGI->new;
@@ -385,18 +384,18 @@ eval {
         	# check for plaintext username/password params first
             $auth = $q->param("username") . ":" . $q->param("password");
         } elsif ($q->http("Authorization") =~ /^Basic (.*)$/) { 
-        	# (dyndns, zoneedit and our web interface all use basic auth)
+        	# (dyndns and our web interface both use basic auth)
             $auth = MIME::Base64::decode($1);
         }
         if ($auth ne "") {
             if ($auth ne $config{"username"} . ":" . $config{"password"}) {
 	            printlog "Bad authentication username:password '$auth'";
-	            %result=("html"=>"401", "dyndns"=>"badauth", "zoneedit"=>"?");
+	            %result=("html"=>"401", "dyndns"=>"badauth");
 	            die "badauth";
             }
         } else {
             printlog "No authentication '" . $q->http("Authorization") . "'";
-            %result=("html"=>"401", "dyndns"=>"badauth", "zoneedit"=>"?");
+            %result=("html"=>"401", "dyndns"=>"badauth");
             die "badauth";
         }
         
@@ -406,7 +405,7 @@ eval {
 	        $system = $q->param("system"); 
 	        if ($system && $system ne "dyndns") { 
 	            printlog "Invalid system '$system'";
-	            %result=("html"=>"N/A", "dyndns"=>"badauth", "zoneedit"=>"N/A");
+	            %result=("html"=>"N/A", "dyndns"=>"badauth");
 	            die "badsys"; 
 	        }
 	        # so do we support multiple mx parameters ? (i.e. with/without backmx ?)
@@ -427,7 +426,7 @@ eval {
 	    $forcetemplate = ($q->param("forcetemplate") eq "yes"); # if ==yes, will revert to template 
 	    
         if ($hostname !~ m/\./) { 
-            %result=("html"=>"Invalid hostname '$hostname'", "dyndns"=>"notfqdn", "zoneedit"=>"?");
+            %result=("html"=>"Invalid hostname '$hostname'", "dyndns"=>"notfqdn");
         	die "notfqdn"; 
         }
         foreach my $x (@{$config{"domains"}}) {
@@ -437,7 +436,7 @@ eval {
         }
         if (! $domain) {
             printlog "Unknown domain '$hostname'";
-            %result=("html"=>"Unknown domain '$hostname'", "dyndns"=>"nohost", "zoneedit"=>"?");
+            %result=("html"=>"Unknown domain '$hostname'", "dyndns"=>"nohost");
             die "nohost"; 
         }
 
@@ -515,7 +514,7 @@ eval {
                 # we appear to be going backwards in time
                 #$serial = sprintf("%10d", $oldserial + 1); 
                 # die "The times they are a-changing. Replenish the sand in your NTP server or something (oldserial=$oldserial; serialTimestamp=$serialTimestamp).";
-                %result=("html"=>"Internal error", "dyndns"=>"911", "zoneedit"=>"?");
+                %result=("html"=>"Internal error", "dyndns"=>"911");
                 die "Old serial is in the future (oldserial=$oldserial; serialTimestamp=$serialTimestamp)";
             }
 
@@ -561,19 +560,19 @@ eval {
 			                            $updatedA = 1;
 				                        printlog "$domain: A record unchanged for '$host'";
 				                        %result=("html"=>"DNS 'A' record for '$host.$domain' unchanged from '$rrData'",
-				                                 "dyndns"=>"good", "zoneedit"=>"?");
+				                                 "dyndns"=>"good");
 			                        } else {
 				                        $lines[$i] = $aRecord;
 				                        $updatedA = 1;
 				                        printlog "$domain: A record updated for '$host' from '$rrData' to '$myip'";
 				                        %result=("html"=>"DNS 'A' record updated for '$host.$domain' from '$rrData' to '$myip'",
-				                                 "dyndns"=>"good", "zoneedit"=>"?");
+				                                 "dyndns"=>"good");
 				                    }
 			                    } else {
 			                        splice(@lines, $i, 1); $i--;
 			                        printlog "$domain: A record removed for '$host'";
 			                        %result=("html"=>"DNS 'A' record removed for '$host.$domain'",
-			                                 "dyndns"=>"good", "zoneedit"=>"?");
+			                                 "dyndns"=>"good");
 			                    }
 		                    } else {
 		                    	$oldip = $rrData;
@@ -609,7 +608,7 @@ eval {
             push @lines, $aRecord;
             printlog "$domain: A record created for '$host': '$myip'";
             %result=("html"=>"DNS 'A' record created for '$host.$domain': '$myip'",
-                     "dyndns"=>"good", "zoneedit"=>"?");
+                     "dyndns"=>"good");
             
         }
         #if (!$updatedMX && $mx && $mx ne "NOCHG") {
@@ -624,7 +623,7 @@ eval {
         # we might want to force an update after a deploy.pl
         if (($bindrecords eq $oldbindrecords) && !($force || $forcetemplate)) {
             %result=("html"=>"No change required",
-             "dyndns"=>"nochg", "zoneedit"=>"?");
+             "dyndns"=>"nochg");
             die "nochg";
         }
         
@@ -798,7 +797,6 @@ sub getDdserverHtmlTemplate {
   my @domains;
   my $htmlUrl = $config{"interfaces"}{"html"};
   my $dyndnsUrl = $config{"interfaces"}{"dyndns"};
-  my $zoneeditUrl = $config{"interfaces"}{"zoneedit"};
   
   my $dyndnsBaseUrl = $dyndnsUrl;
   $dyndnsBaseUrl =~ s!^http://(.*)/nic!$1!; # ddclient config doesn't include http:// or trailing '/nic' 
@@ -916,16 +914,6 @@ protocol=dyndns2 login=<i>secretlogin</i>, password=<i>secretpassword</i> <i>hos
 <br/><code><%= $dyndnsUrl %>/checkip.html</code>
 <br/><code><%= $dyndnsUrl %>/update?system=dyndns&hostname=<i>host.example.com</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
 <br/><code><%= $dyndnsUrl %>/update?system=dyndns&hostname=<i>host.example.com</i>&myip=<i>x.x.x.x</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
-
-<h3>ZoneEdit</h3>
-<p>Or even the <a href="http://www.zoneedit.com/">zoneedit</a>-compatible 
-<a href="http://www.zoneedit.com/doc/dynamic.html">interface</a>:
-<br/><code><%= $zoneeditUrl %>/checkip.html</code> <!-- prefixString 'IP Address:' -->
-<br/><code><%= $zoneeditUrl %>/auth/dynamic.html?dnsto=<i>x.x.x.x</i>&host=<i>host.example.com</i></code> <a href="http://www.ietf.org/rfc/rfc2617.txt"><i>(HTTP Basic authentication)</i></a>
-
-<h3>*cough* route53 *cough*</h3>
-<p>Or some new exciting thing I've just thought of that uses XML or JSON, and uses the word
-'cloud' repeatedly in the description. 
 
 <hr/>
 <p>&copy; 2013 <a href="http://www.randomnoun.com">randomnoun</a>. All Rights Reserved.</p>
