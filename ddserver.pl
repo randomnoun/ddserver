@@ -535,6 +535,15 @@ eval {
 		        $bindfile = do { local $/; <INPUT> };
 		        close(INPUT);
 		    }
+
+		    $something = "zone \"$domain\" {\n" .
+                "        type master;\n" .
+                "        file \"$bindfilename\";\n" .
+                "};\n";
+		    open(OUTPUT, ">>/etc/bind/named.conf.zones") || die "Could not open that: $!";
+		    print(OUTPUT $something);
+		    close(OUTPUT);
+		    
         }
 
         $updatedA = 0; $updatedMX = 0;
