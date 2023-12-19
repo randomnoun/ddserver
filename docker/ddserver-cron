@@ -1,0 +1,8 @@
+#
+# cron-jobs for ddserver
+#
+ 
+MAILTO=root
+ 
+# Every minute, check to see if the bind server should be reloaded
+*/1 * * * *     root if [ -f /etc/bind/dynamic/.bind_restart ]; then /etc/init.d/bind9 reload >/dev/null; rm -f /etc/bind/dynamic/.bind_restart; fi
