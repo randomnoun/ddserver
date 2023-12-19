@@ -17,7 +17,7 @@ ENV \
 RUN set -eux \
     && apt update \
     && apt install --no-install-recommends --no-install-suggests -y \
-        bind9 perl mini-httpd \
+        bind9 perl lighttpd cron \
     && apt purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && mkdir /var/log/named \
     && chown bind:bind /var/log/named \
@@ -25,7 +25,7 @@ RUN set -eux \
 
 RUN set -eux \
     && apt install --no-install-recommends --no-install-suggests -y \
-        wget vim procps cron
+        wget curl vim procps less
 
 # Install ddserver
 
@@ -34,15 +34,21 @@ RUN set -eux \
         libwww-perl libcgi-pm-perl libjson-perl libjavascript-minifier-perl
 
 RUN mkdir -p /var/www/ddserver \
-   && mkdir -p /etc/bind/dynamic
+   && mkdir -p /etc/bind/dynamic \
+   && mkdir -p /etc/bind/dynamic.old \
+   && chmod 777 /etc/bind/dynamic \
+   && chmod 777 /etc/bind/dynamic.old \
+   && touch /var/log/ddserver.log \
+   && chown www-data:www-data /var/log/ddserver.log \
+   && touch /etc/bind/dynamic/db.empty 
 
 # && rm -r /var/lib/apt/lists/* \
   
-COPY ./ddserver.pl /var/www/ddserver/ddserver.pl
-COPY ./ddserver.json.sample /var/www/ddserver/ddserver.json
-RUN  ln -s /var/www/ddserver/ddserver.pl /var/www/ddserver/nic
+COPY ./ddserver.pl /var/www/html/ddserver.pl
+COPY ./ddserver.json.sample /var/www/html/ddserver.json
 
-COPY ./docker/index.html /var/www/ddserver/index.html
+COPY ./docker/20-ddserver.conf /etc/lighttpd/conf-enabled/20-ddserver.conf
+COPY ./docker/index.html /var/www/html/index.html
 COPY ./docker/ddserver-cron /etc/cron.d/ddserver-cron
 
 RUN 
