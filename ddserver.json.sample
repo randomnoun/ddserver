@@ -76,14 +76,16 @@
     "domains" : [
       "example.com",
       "specificgeneralisations.com",
-      "generalspecifics.com",
-      "mycompanyname.com"
+      "generalspecifics.com"
     ],
  
-    /* the nameservers for these zones (array) */
+    /* the nameservers for these domains (array) 
+       if the nameservers are themselves within the domains, an A record should also be provided 
+    */
     "nameservers" : [ 
-        "ns1.example.com",
-        "ns2.example.com"
-    ]
+        { "name": "ns1.example.com", "a": "127.0.0.1" },
+        { "name": "ns2.example.com", "a": "127.0.0.1" }
+    ],
+    
   }
 }

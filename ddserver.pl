@@ -101,13 +101,13 @@ If running multiple nameservers, configure ddserver-hostname.conf, which I will 
 
 Create the folders and log files used by the script:
 
-	sudo mkdir /etc/bind/dynamic; sudo chown www-data:bind /etc/bind/dynamic
-	sudo mkdir /etc/bind/dynamic.old; sudo chown www-data:bind /etc/bind/dynamic.old
-	sudo touch /var/log/ddserver.log; sudo chown www-data:www-data /var/log/ddserver.log
+    sudo mkdir /etc/bind/dynamic; sudo chown www-data:bind /etc/bind/dynamic
+    sudo mkdir /etc/bind/dynamic.old; sudo chown www-data:bind /etc/bind/dynamic.old
+    sudo touch /var/log/ddserver.log; sudo chown www-data:www-data /var/log/ddserver.log
 
 Create /etc/cron.d/ddserver:
 
-	*/1 * * * *     root if [ -f /etc/bind/dynamic/.bind_restart ]; then /etc/init.d/bind9 reload >/dev/null; rm -f /etc/bind/dynamic/.bind_restart; fi
+    */1 * * * *     root if [ -f /etc/bind/dynamic/.bind_restart ]; then /etc/init.d/bind9 reload >/dev/null; rm -f /etc/bind/dynamic/.bind_restart; fi
 
 Update your domain's name server records to point to the bind server(s) configured by this script.
 
@@ -212,14 +212,14 @@ sub printlog {
     my $text = shift;
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
     my $output = sprintf("%02d/%02d/%04d %02d:%02d:%02d %s %s\n", 
-    	$mday, $mon+1, $year+1900, $hour, $min, $sec, $ENV{'REMOTE_ADDR'} || "-", $text);
+        $mday, $mon+1, $year+1900, $hour, $min, $sec, $ENV{'REMOTE_ADDR'} || "-", $text);
 
     if (exists $config{"logfile"}) {
-	    if (! fileno LOGFILE) {
-	    	open(LOGFILE, ">>" . $config{"logfile"}) || die "Could not open " . $config{"logfile"} . ": $!";
-	    }
-	    print LOGFILE $output;
-	}
+        if (! fileno LOGFILE) {
+            open(LOGFILE, ">>" . $config{"logfile"}) || die "Could not open " . $config{"logfile"} . ": $!";
+        }
+        print LOGFILE $output;
+    }
 }
 
 
@@ -257,11 +257,11 @@ sub parseConfig {
     %ddserverJson = %{decode_json $ddserverJsonText};
     %config = %{$ddserverJson{"config"}};
 
-	if (-f "ddserver-hostname.conf") {
-	    open (INPUT, "ddserver-hostname.conf") || die "Could not open ddserver-hostname.conf: $!";
-	    $ddserverHostname = do { local $/; <INPUT> };
-	    close(INPUT);
-	}
+    if (-f "ddserver-hostname.conf") {
+        open (INPUT, "ddserver-hostname.conf") || die "Could not open ddserver-hostname.conf: $!";
+        $ddserverHostname = do { local $/; <INPUT> };
+        close(INPUT);
+    }
    
 }
 
@@ -273,24 +273,24 @@ sub evalTemplate {
     $eval = "";
     $out = "";
     while ($src =~ m/\G(.*?)<%/sgc) {
-	    $pre = $1;
-	    $pre =~ s/'/\\'/g; $pre =~ s/\n/'."\\n";\n\$out .= '/gs;
-	    if ($pre ne "") { $eval .= "\$out .= '" . $pre . "';\n"; }
-	    if ($src =~ m/\G=(.*?)%>/gc) {
-	        $eval .= "\$out .= " . $1 . ";\n";
-	        
-	    } elsif ($src =~ m/\G(.*?)%>/gsc) {
-	        $eval .= $1 . "\n";
-	      
-	    } else {
-	        # '<%' without matching '%>'; could raise a syntax error but will just pass it through
-		    $eval .= "\$out .= '<%'\n";
-	    } 
+        $pre = $1;
+        $pre =~ s/'/\\'/g; $pre =~ s/\n/'."\\n";\n\$out .= '/gs;
+        if ($pre ne "") { $eval .= "\$out .= '" . $pre . "';\n"; }
+        if ($src =~ m/\G=(.*?)%>/gc) {
+            $eval .= "\$out .= " . $1 . ";\n";
+            
+        } elsif ($src =~ m/\G(.*?)%>/gsc) {
+            $eval .= $1 . "\n";
+          
+        } else {
+            # '<%' without matching '%>'; could raise a syntax error but will just pass it through
+            $eval .= "\$out .= '<%'\n";
+        } 
     }
     if ($src =~ m/\G(.+)$/s) {
-	    $post = $1;
-	    $post =~ s/'/\\'/g; $post =~ s/\n/'."\\n";\n\$out .= '/gs;
-	    $eval .= "\$out .= '" . $post . "';\n";
+        $post = $1;
+        $post =~ s/'/\\'/g; $post =~ s/\n/'."\\n";\n\$out .= '/gs;
+        $eval .= "\$out .= '" . $post . "';\n";
     }
   
     #print "eval is $eval\n===================\n";
@@ -320,7 +320,7 @@ eval {
 
     parseConfig;
 
-	# override myip from parameter if supplied
+    # override myip from parameter if supplied
     $myip = $ENV{"REMOTE_ADDR"}; 
     @proxyHeader = @{$config{"proxyHeaders"}};
     for my $h (@proxyHeader) {
@@ -381,17 +381,17 @@ eval {
         $auth = "";
         
         if (defined $q->param("username") && defined $q->param("password")) {
-        	# check for plaintext username/password params first
+            # check for plaintext username/password params first
             $auth = $q->param("username") . ":" . $q->param("password");
         } elsif ($q->http("Authorization") =~ /^Basic (.*)$/) { 
-        	# (dyndns and our web interface both use basic auth)
+            # (dyndns and our web interface both use basic auth)
             $auth = MIME::Base64::decode($1);
         }
         if ($auth ne "") {
             if ($auth ne $config{"username"} . ":" . $config{"password"}) {
-	            printlog "Bad authentication username:password '$auth'";
-	            %result=("html"=>"401", "dyndns"=>"badauth");
-	            die "badauth";
+                printlog "Bad authentication username:password '$auth'";
+                %result=("html"=>"401", "dyndns"=>"badauth");
+                die "badauth";
             }
         } else {
             printlog "No authentication '" . $q->http("Authorization") . "'";
@@ -400,38 +400,38 @@ eval {
         }
         
         if ($interface==IFACE_DYNDNS) {
-	        $hostname = $q->param("hostname");
-	        # check pointless system parameter (must always be 'dyndns')
-	        $system = $q->param("system"); 
-	        if ($system && $system ne "dyndns") { 
-	            printlog "Invalid system '$system'";
-	            %result=("html"=>"N/A", "dyndns"=>"badauth");
-	            die "badsys"; 
-	        }
-	        # so do we support multiple mx parameters ? (i.e. with/without backmx ?)
-	        # luckily, dyndns doesn't support the mx,backmx,wildcard parameters
-	        # so we won't either
-	        #$wildcard = $q->param("wildcard"); # ON|OFF|NOCHG
-	        #$mx = $q->param("mx"); # ip|NOCHG
-	        #$backmx = $q->param("backmx"); # YES|NO|NOCHG
-	        
-	        # no idea what an 'offline redirect' is supposed to do. 
-	        #  (forward everything to an SEO-crammed parking domain, presumably)
-	        $offline = $q->param("offline"); # useless
+            $hostname = $q->param("hostname");
+            # check pointless system parameter (must always be 'dyndns')
+            $system = $q->param("system"); 
+            if ($system && $system ne "dyndns") { 
+                printlog "Invalid system '$system'";
+                %result=("html"=>"N/A", "dyndns"=>"badauth");
+                die "badsys"; 
+            }
+            # so do we support multiple mx parameters ? (i.e. with/without backmx ?)
+            # luckily, dyndns doesn't support the mx,backmx,wildcard parameters
+            # so we won't either
+            #$wildcard = $q->param("wildcard"); # ON|OFF|NOCHG
+            #$mx = $q->param("mx"); # ip|NOCHG
+            #$backmx = $q->param("backmx"); # YES|NO|NOCHG
+            
+            # no idea what an 'offline redirect' is supposed to do. 
+            #  (forward everything to an SEO-crammed parking domain, presumably)
+            $offline = $q->param("offline"); # useless
 
-	    } elsif ($interface==IFACE_HTML) {
-	        $hostname = $q->param("hostname") . $q->param("domain"); 
-	    }
-	    $force = ($q->param("force") eq "yes");  # if ==yes, will write bindfile even if no changes detected
-	    $forcetemplate = ($q->param("forcetemplate") eq "yes"); # if ==yes, will revert to template 
-	    
+        } elsif ($interface==IFACE_HTML) {
+            $hostname = $q->param("hostname") . $q->param("domain"); 
+        }
+        $force = ($q->param("force") eq "yes");  # if ==yes, will write bindfile even if no changes detected
+        $forcetemplate = ($q->param("forcetemplate") eq "yes"); # if ==yes, will revert to template 
+        
         if ($hostname !~ m/\./) { 
             %result=("html"=>"Invalid hostname '$hostname'", "dyndns"=>"notfqdn");
-        	die "notfqdn"; 
+            die "notfqdn"; 
         }
         foreach my $x (@{$config{"domains"}}) {
             if ($hostname =~ /^(.*)\.${x}$/) {
-            	$host = $1; $domain = $x;
+                $host = $1; $domain = $x;
             }
         }
         if (! $domain) {
@@ -452,36 +452,36 @@ eval {
         $bindtemplatefilename =~ s/{zone}/$domain/;
         
         if (-f $bindfilename) {
-	        open (INPUT, $bindfilename) || die "Could not open $bindfilename: $!";
-	        $bindfile = do { local $/; <INPUT> };
-	        $oldbindfile = $bindfile; # for backups
-	        close(INPUT);
+            open (INPUT, $bindfilename) || die "Could not open $bindfilename: $!";
+            $bindfile = do { local $/; <INPUT> };
+            $oldbindfile = $bindfile; # for backups
+            close(INPUT);
 
             # what could possibly go wrong here
             if (($bindrecords) = ($bindfile =~ m/
-	          ^;\s+===\s+START\s+OF\s+GENERATED\s+CONFIGURATION\n
-	          (.*)
-	          ^;\s+===\s+END\s+OF\s+GENERATED\s+CONFIGURATION\n
-	          /msx)) 
+              ^;\s+===\s+START\s+OF\s+GENERATED\s+CONFIGURATION\n
+              (.*)
+              ^;\s+===\s+END\s+OF\s+GENERATED\s+CONFIGURATION\n
+              /msx)) 
             {
-	            # replace the existing bindrecords with the <%= bindrecords %> placeholder
-	            $bindfile =~ s/
-	              (^;\s+===\s+START\s+OF\s+GENERATED\s+CONFIGURATION\n)
-	              (.*)
-	              (^;\s+===\s+END\s+OF\s+GENERATED\s+CONFIGURATION\n)
-	              /$1<%= \$bindrecords %>\n$3/msx;
-	            chomp $bindrecords;  
+                # replace the existing bindrecords with the <%= bindrecords %> placeholder
+                $bindfile =~ s/
+                  (^;\s+===\s+START\s+OF\s+GENERATED\s+CONFIGURATION\n)
+                  (.*)
+                  (^;\s+===\s+END\s+OF\s+GENERATED\s+CONFIGURATION\n)
+                  /$1<%= \$bindrecords %>\n$3/msx;
+                chomp $bindrecords;  
             } else {
-            	die "No generated configuration found in $bindfilename";
+                die "No generated configuration found in $bindfilename";
             }
 
             # get old serial number
-			# some examples on http://en.wikipedia.org/wiki/Zone_file doesn't include the opening parenthesis in the SOA line:
-			#   @  1D  IN  SOA   @  root 1999010100 3h 15m 1w 1d
-			# which conflicts with RFC 1035 according to http://www.zytrax.com/books/dns/ch8/soa.html
+            # some examples on http://en.wikipedia.org/wiki/Zone_file doesn't include the opening parenthesis in the SOA line:
+            #   @  1D  IN  SOA   @  root 1999010100 3h 15m 1w 1d
+            # which conflicts with RFC 1035 according to http://www.zytrax.com/books/dns/ch8/soa.html
             # TODO handle SOA records without an opening parenthesis
             # TODO handle comments that may appear on the first line of the SOA record
-			# the serial number is the 6th field in the SOA record			        
+            # the serial number is the 6th field in the SOA record                  
             if (($startOfSoaRecord, $oldserial) = ($bindfile =~ m/^(\@\s+IN\s+SOA\s+\S+\s+\S+\s+\(\s+)([0-9]+)/mp)) {
                 $bindprematch = ${^PREMATCH}; $bindmatch = ${^MATCH}; $bindpostmatch = ${^POSTMATCH};
             } else {
@@ -490,18 +490,18 @@ eval {
             
             # if forcetemplate is set, and a template exists for this zone, then reset $bindfile here.
             if ($forcetemplate && -f $bindtemplatefilename) {
-		        open (INPUT, $bindtemplatefilename) || die "Could not open $bindtemplatefilename: $!";
-		        $bindfile = do { local $/; <INPUT> };
-		        close(INPUT);
-		        # we don't care about the serial number in the template
-		        if (($startOfSoaRecord, $oldserial_ignored) = ($bindfile =~ m/^(\@\s+IN\s+SOA\s+\S+\s+\S+\s+\(\s+)([0-9]+)/mp)) {
-                	$bindprematch = ${^PREMATCH}; $bindmatch = ${^MATCH}; $bindpostmatch = ${^POSTMATCH};
-            	} else {
-                	die "Can't determine existing serial number in '$bindfilename'";
-            	}
-		    }
+                open (INPUT, $bindtemplatefilename) || die "Could not open $bindtemplatefilename: $!";
+                $bindfile = do { local $/; <INPUT> };
+                close(INPUT);
+                # we don't care about the serial number in the template
+                if (($startOfSoaRecord, $oldserial_ignored) = ($bindfile =~ m/^(\@\s+IN\s+SOA\s+\S+\s+\S+\s+\(\s+)([0-9]+)/mp)) {
+                    $bindprematch = ${^PREMATCH}; $bindmatch = ${^MATCH}; $bindpostmatch = ${^POSTMATCH};
+                } else {
+                    die "Can't determine existing serial number in '$bindfilename'";
+                }
+            }
           
-			# update serial			
+            # update serial         
             if ($oldserial=~/^$serialTimestamp([0-9]{2})/) {
                 $nn = $1; $nn++; if ($nn == 100) { $mday++; $serialTimestamp = sprintf("%04d%02d%02d", ($year+1900), ($mon+1), $mday); }
                 $serial = sprintf("%s%02d", $serialTimestamp, $nn);
@@ -531,19 +531,19 @@ eval {
             printlog "$domain: new zonefile";
             $bindfile = getBindTemplate();
             if (-f $bindtemplatefilename) {
-		        open (INPUT, $bindtemplatefilename) || die "Could not open $bindtemplatefilename: $!";
-		        $bindfile = do { local $/; <INPUT> };
-		        close(INPUT);
-		    }
+                open (INPUT, $bindtemplatefilename) || die "Could not open $bindtemplatefilename: $!";
+                $bindfile = do { local $/; <INPUT> };
+                close(INPUT);
+            }
 
-		    $something = "zone \"$domain\" {\n" .
+            $something = "zone \"$domain\" {\n" .
                 "        type master;\n" .
                 "        file \"$bindfilename\";\n" .
                 "};\n";
-		    open(OUTPUT, ">>/etc/bind/named.conf.zones") || die "Could not open named.conf.zones: $!";
-		    print(OUTPUT $something);
-		    close(OUTPUT);
-		    
+            open(OUTPUT, ">>/etc/bind/named.conf.zones") || die "Could not open named.conf.zones: $!";
+            print(OUTPUT $something);
+            close(OUTPUT);
+            
         }
 
         $updatedA = 0; $updatedMX = 0;
@@ -556,57 +556,57 @@ eval {
             # split em, parse em, update em, join em
             @lines = split(/\n/, $bindrecords);
             for (my $i=0; $i<=$#lines; $i++) {
-	            $line = $lines[$i];
-	            # parse each generated resource record 
-	            # NB: records without names are not supported here
-	            # NB: comments are not preserved.
-	            if (($rrName, $rrTtl, $rrClass, $rrData) = ($line=~/^(\S+)\s+([0-9]*\s+)IN\s+(A|MX)\s+(.*)$/)) {
-	                if ($rrName eq $host) {
-		                if ($rrClass eq "A") {
-		                    if ($myip ne "NOCHG") { 
-			                    if ($myip) {
-			                        if ($rrData eq $myip) {
-			                            $updatedA = 1;
-				                        printlog "$domain: A record unchanged for '$host'";
-				                        %result=("html"=>"DNS 'A' record for '$host.$domain' unchanged from '$rrData'",
-				                                 "dyndns"=>"good");
-			                        } else {
-				                        $lines[$i] = $aRecord;
-				                        $updatedA = 1;
-				                        printlog "$domain: A record updated for '$host' from '$rrData' to '$myip'";
-				                        %result=("html"=>"DNS 'A' record updated for '$host.$domain' from '$rrData' to '$myip'",
-				                                 "dyndns"=>"good");
-				                    }
-			                    } else {
-			                        splice(@lines, $i, 1); $i--;
-			                        printlog "$domain: A record removed for '$host'";
-			                        %result=("html"=>"DNS 'A' record removed for '$host.$domain'",
-			                                 "dyndns"=>"good");
-			                    }
-		                    } else {
-		                    	$oldip = $rrData;
-		                    }     
-		                #} elsif ($rrClass eq "MX") {
-		                #    if ($mx ne "NOCHG") { 
-			            #        if ($mx) {
-			            #            $line[$i] = $mxRecord;
-			            #            $updatedMX = 1;
-			            #            printlog "$domain: MX record updated for '$host' from '$rrData' to '$mx'";
-			            #        } else {
-			            #            splice(@lines, $i, 1); $i--;
-			            #            printlog "$domain: MX record removed for '$host'";
-			            #        }
-		                #    }
-		                } else {
-		                    # ignore unrecognised record types 
-		                }
-		                
-		            } else {
-		                # ignore other hosts
-		            }
-	            } else {
-	                die "Error parsing generated bind records in $bindfilename: '$line'";
-	            }
+                $line = $lines[$i];
+                # parse each generated resource record 
+                # NB: records without names are not supported here
+                # NB: comments are not preserved.
+                if (($rrName, $rrTtl, $rrClass, $rrData) = ($line=~/^(\S+)\s+([0-9]*\s+)IN\s+(A|MX)\s+(.*)$/)) {
+                    if ($rrName eq $host) {
+                        if ($rrClass eq "A") {
+                            if ($myip ne "NOCHG") { 
+                                if ($myip) {
+                                    if ($rrData eq $myip) {
+                                        $updatedA = 1;
+                                        printlog "$domain: A record unchanged for '$host'";
+                                        %result=("html"=>"DNS 'A' record for '$host.$domain' unchanged from '$rrData'",
+                                                 "dyndns"=>"good");
+                                    } else {
+                                        $lines[$i] = $aRecord;
+                                        $updatedA = 1;
+                                        printlog "$domain: A record updated for '$host' from '$rrData' to '$myip'";
+                                        %result=("html"=>"DNS 'A' record updated for '$host.$domain' from '$rrData' to '$myip'",
+                                                 "dyndns"=>"good");
+                                    }
+                                } else {
+                                    splice(@lines, $i, 1); $i--;
+                                    printlog "$domain: A record removed for '$host'";
+                                    %result=("html"=>"DNS 'A' record removed for '$host.$domain'",
+                                             "dyndns"=>"good");
+                                }
+                            } else {
+                                $oldip = $rrData;
+                            }     
+                        #} elsif ($rrClass eq "MX") {
+                        #    if ($mx ne "NOCHG") { 
+                        #        if ($mx) {
+                        #            $line[$i] = $mxRecord;
+                        #            $updatedMX = 1;
+                        #            printlog "$domain: MX record updated for '$host' from '$rrData' to '$mx'";
+                        #        } else {
+                        #            splice(@lines, $i, 1); $i--;
+                        #            printlog "$domain: MX record removed for '$host'";
+                        #        }
+                        #    }
+                        } else {
+                            # ignore unrecognised record types 
+                        }
+                        
+                    } else {
+                        # ignore other hosts
+                    }
+                } else {
+                    die "Error parsing generated bind records in $bindfilename: '$line'";
+                }
             }
         } else {
             # nothing to update, nothing to delete
@@ -636,57 +636,57 @@ eval {
             die "nochg";
         }
         
-		# template needs the serial, zone and bindrecords variables to be set
+        # template needs the serial, zone and bindrecords variables to be set
         $zone = $domain;
         $bindfile = evalTemplate($bindfile); 
 
-		if ($backupbindfilename) {        
-        	open (OUTPUT, ">$backupbindfilename") || die "Could not open $backupbindfilename: $!";
-	    	print OUTPUT $oldbindfile;
-	    	close(OUTPUT);
-	    	printlog "$domain: created backup '$backupbindfilename'";
-	    }
+        if ($backupbindfilename) {        
+            open (OUTPUT, ">$backupbindfilename") || die "Could not open $backupbindfilename: $!";
+            print OUTPUT $oldbindfile;
+            close(OUTPUT);
+            printlog "$domain: created backup '$backupbindfilename'";
+        }
 
         open (OUTPUT, ">$bindfilename") || die "Could not open $bindfilename: $!";
-	    print OUTPUT $bindfile;
-	    close(OUTPUT);
-	    printlog "$domain: updated '$bindfilename'";
-	      
-	    open (OUTPUT, ">" . $config{"restartfile"}) || die "Could not open " . $config{"restartfile"} . ": $!";
-	    close (OUTPUT); 
+        print OUTPUT $bindfile;
+        close(OUTPUT);
+        printlog "$domain: updated '$bindfilename'";
+          
+        open (OUTPUT, ">" . $config{"restartfile"}) || die "Could not open " . $config{"restartfile"} . ": $!";
+        close (OUTPUT); 
 
-		# TODO: if we've got >1 name server, then tell the others, using a transactional pub/sub messaging system.
-		# or, alternatively, just fire off a HTTP request and cross your fingers
-		if ( ($myip ne "NOCHG") && 
-		     (ref($config{"nameservers"}) eq "HASH") && 
-		     (!defined $q->param("xfr")) ) {
-			%nameservers = %{$config{"nameservers"}};
-			for my $ddserverHost (sort keys %nameservers) {
-				if ($ddserverHost ne $ddserverHostname) {
-				    $url = $nameservers{$ddserverHost}{"dyndns"};
-				    $url .= "/update?hostname=" . $hostname;
-				    $url .= "&myip=" . $myip;
-				    $url .= "&xfr=Y";
-					
-					my $ua = LWP::UserAgent->new();
-					$ua->agent("ddserver.pl/$cvsVersion <" . $config{"serverAdmin"} . ">");
-					$ua->timeout(10);
-				    
-				    my $req =  HTTP::Request->new( "GET" => $url );
-					$req->authorization_basic( $config{"username"}, $config{"password"} );
-					my $response = $ua->request( $req );
-					if ($response->is_success) {
-					    my $content = $response->content; chomp $content;
-					    printlog "$domain: updated ns '$url', response='" . $content . "'";
-					} else {
-					    printlog "$domain: failed ns $url: " . $response->status_line;
-					    # should probably consider this a failure, but let's run with it for now
-					}
-				}
-			}
-		}
+        # TODO: if we've got >1 name server, then tell the others, using a transactional pub/sub messaging system.
+        # or, alternatively, just fire off a HTTP request and cross your fingers
+        if ( ($myip ne "NOCHG") && 
+             (ref($config{"nameservers"}) eq "HASH") && 
+             (!defined $q->param("xfr")) ) {
+            %nameservers = %{$config{"nameservers"}};
+            for my $ddserverHost (sort keys %nameservers) {
+                if ($ddserverHost ne $ddserverHostname) {
+                    $url = $nameservers{$ddserverHost}{"dyndns"};
+                    $url .= "/update?hostname=" . $hostname;
+                    $url .= "&myip=" . $myip;
+                    $url .= "&xfr=Y";
+                    
+                    my $ua = LWP::UserAgent->new();
+                    $ua->agent("ddserver.pl/$cvsVersion <" . $config{"serverAdmin"} . ">");
+                    $ua->timeout(10);
+                    
+                    my $req =  HTTP::Request->new( "GET" => $url );
+                    $req->authorization_basic( $config{"username"}, $config{"password"} );
+                    my $response = $ua->request( $req );
+                    if ($response->is_success) {
+                        my $content = $response->content; chomp $content;
+                        printlog "$domain: updated ns '$url', response='" . $content . "'";
+                    } else {
+                        printlog "$domain: failed ns $url: " . $response->status_line;
+                        # should probably consider this a failure, but let's run with it for now
+                    }
+                }
+            }
+        }
 
-        if ($myip eq "NOCHG") { $myip = $oldip; } # report existing IP if no change requested	      
+        if ($myip eq "NOCHG") { $myip = $oldip; } # report existing IP if no change requested         
         if ($interface==IFACE_DYNDNS) { die "good $myip"; }
         
     } elsif ($action ne "") {
@@ -708,8 +708,8 @@ if ($@) {
     ($errorCode)=($errorString=~/^(.*) at .* line [0-9]+\./);
         
     if ($errorCode ne "good") {
-	    printlog $errorString;
-	}
+        printlog $errorString;
+    }
     #print STDERR $errorString; # hopefully doesn't cause apache to 500
 
     if ($sendErrorsAsInscrutableErrorCode) {
@@ -723,24 +723,24 @@ if ($@) {
     } else {
         if ($result{"html"} eq "401") {
             print $q->header( {-status=>"401 Not Authorized", -WWW_Authenticate=>'Basic realm="Username/password required"'} );
-		    print "<h1>401 Not Authorized</h1>"
+            print "<h1>401 Not Authorized</h1>"
         } elsif (%result) {
-		    $baseurl = $config{"server"};
-		    print $q->header();
-		    $html = getDdserverHtmlTemplate();
-		    $html = evalTemplate($html); 
-		    print $html;
+            $baseurl = $config{"server"};
+            print $q->header();
+            $html = getDdserverHtmlTemplate();
+            $html = evalTemplate($html); 
+            print $html;
         
         } else {
-	        $host = ($^O eq "linux" || $^O eq "darwin" ? hostfqdn() : $q->server_name());
-	        if ($host eq "localhost") { $host = hostfqdn(); } # win32 cmdline
-	
-	        # you may not want to do this on a public-facing server
-	        print $q->header();
-	        print "Error in ddserver.pl script on $host: $errorString\n";
-	        print "<hr/>\n";
-	        print "Real user id=" . getpwuid($<) . "($<), effective user id=" . getpwuid($>) . "($>)";
-	    }
+            $host = ($^O eq "linux" || $^O eq "darwin" ? hostfqdn() : $q->server_name());
+            if ($host eq "localhost") { $host = hostfqdn(); } # win32 cmdline
+    
+            # you may not want to do this on a public-facing server
+            print $q->header();
+            print "Error in ddserver.pl script on $host: $errorString\n";
+            print "<hr/>\n";
+            print "Real user id=" . getpwuid($<) . "($<), effective user id=" . getpwuid($>) . "($>)";
+        }
     }
     if (LOGFILE) { close(LOGFILE); }
 }
@@ -759,28 +759,29 @@ sub getBindTemplate {
   if (ref($config{"nameservers"}) eq "ARRAY") {
     $nameserversRef = \@{$config{"nameservers"}};
     @nameservers = @{$nameserversRef};
-  } else {
-    $nameserversRef = \%{$config{"nameservers"}};
-    @nameservers = sort keys %{$nameserversRef};
-  }   
+  }
 %>  
 ;
 ; BIND data file for <%= $zone %> zone
 ; this file is automatically generated by ddserver.pl. 
 ;
-$TTL	604800
-@	IN	SOA	<%= $authoritativeNameserver %>. <%= soaContact %>. (
-		<%= $serial %>	; (YYYYMMDDNN) Serial INCREMENT THIS EVERY TIME FILE CHANGES
-					    ; (triggers zone transfer if secondary configured)  
-			   7200		; Refresh
-			  86400		; Retry
-			2419200		; Expire
-			   7200 )	; Negative Cache TTL
+$TTL    604800
+@   IN  SOA <%= $authoritativeNameserver %>. <%= soaContact %>. (
+        <%= $serial %>  ; (YYYYMMDDNN) Serial INCREMENT THIS EVERY TIME FILE CHANGES
+                        ; (triggers zone transfer if secondary configured)  
+               7200     ; Refresh
+              86400     ; Retry
+            2419200     ; Expire
+               7200 )   ; Negative Cache TTL
 ;
 <%
   for my $n (@nameservers) {
 %>    
-<%= $zone %>.         7200    IN      NS      <%= $n %>.<%
+<%= $zone %>.         7200    IN      NS      <%= $n->{name} %>.<%
+    if ( $n->{name} =~ /$zone$/) {
+%>
+<%= $n->{name} %>.    7200    IN      A       <%= $n->{a} %><%      
+    }
   }
 %>      
 ;
