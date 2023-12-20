@@ -1,0 +1,3 @@
+logging {
+    category queries { default_stderr; };
+};

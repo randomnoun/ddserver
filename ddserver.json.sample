@@ -80,12 +80,12 @@
     ],
  
     /* the nameservers for these domains (array) 
-       if the nameservers are themselves within the domains, an A record should also be provided 
+       if the nameservers are themselves within the domains, an A record must be provided 
     */
     "nameservers" : [ 
         { "name": "ns1.example.com", "a": "127.0.0.1" },
         { "name": "ns2.example.com", "a": "127.0.0.1" }
-    ],
+    ]
     
   }
 }
