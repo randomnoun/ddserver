@@ -540,7 +540,7 @@ eval {
                 "        type master;\n" .
                 "        file \"$bindfilename\";\n" .
                 "};\n";
-            open(OUTPUT, ">>/etc/bind/named.conf.zones") || die "Could not open named.conf.zones: $!";
+            open(OUTPUT, ">>/etc/bind/dynamic/zones.conf") || die "Could not open zones.conf: $!";
             print(OUTPUT $something);
             close(OUTPUT);
             
